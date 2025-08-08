@@ -1,0 +1,313 @@
+import java.util.*;
+import java.io.*;
+class User{
+    String email,password,role;
+    double deposit =1500;
+    List<String> borrowedBooks = new ArrayList<>();
+    public User(String email,String password,String role){
+        this.email=email;
+        this.password=password;
+        this.role=role;
+    }
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+}
+ class Authservice{
+    private Map<String,User> users=new HashMap<>();
+    public User login(String email,String pass){
+        if(users.containsKey(email)){
+            User a=users.get(email);
+            if(a.getPassword().equals(pass)){
+                return a;
+            }
+        }
+        return null;
+    }
+    public void register(String email,String pass,String role){
+        if(users.containsKey(email)){
+            System.out.println("Already registered User");
+            return;
+        }
+        users.put(email,new User(email, pass, role));
+        System.out.println("User registerd successfully");
+    }
+    public void seedUsers() {
+        register("admin@gmail.com", "admin123", "admin");
+        register("student@gmail.com", "pass123", "borrower");
+    }
+}
+class BookService{
+    private List<Book> books=new ArrayList<>();
+    public void addBook(Book b){
+        books.add(b);
+    }
+    public void deleteBook(String isbn){
+        books.removeIf(book->book.isbn.equals(isbn));
+    }
+    public void modifyQuantity(String isbn,int newQty){
+        for(Book b:books){
+            if(b.isbn.equals(isbn)){
+                b.quantity=newQty;
+                return;
+            }
+        }
+        System.out.println("Book not found");
+    }
+    
+    public void searchByName(String name) {
+        for (Book b : books) {
+            if (b.name.equals(name)) {
+                System.out.println(b);
+                return;
+            }
+        }
+        System.out.println("Book not found.");
+    }
+    public void viewBooksSortedByName(){
+        for (int i = 0; i < books.size() - 1; i++) {
+            for (int j = 0; j < books.size() - i - 1; j++) {
+                if (books.get(j).name.compareTo(books.get(j + 1).name) > 0) {
+                    Book temp = books.get(j);
+                    books.set(j, books.get(j + 1));
+                    books.set(j + 1, temp);
+                }
+            }
+        }
+        for (int i = 0; i < books.size(); i++) {
+            System.out.println(books.get(i));
+        }
+    }
+    public void viewBooksSortedByQuantity(){
+        for (int i = 0; i < books.size() - 1; i++) {
+            for (int j = 0; j < books.size() - i - 1; j++) {
+                if (books.get(j).quantity > books.get(j + 1).quantity) {
+                    Book temp = books.get(j);
+                    books.set(j, books.get(j + 1));
+                    books.set(j + 1, temp);
+                }
+            }
+        }
+        for (int i = 0; i < books.size(); i++) {
+            System.out.println(books.get(i));
+        }
+    }
+    public void searchByIsbn(String isbn) {
+        for (Book b : books) {
+            if (b.isbn.equals(isbn)) {
+                System.out.println(b);
+                return;
+            }
+        }
+        System.out.println("Book not found.");
+    }
+    public Book findBook(String isbn) {
+        for (int i = 0; i < books.size(); i++) {
+            if (books.get(i).isbn.equals(isbn)) {
+                return books.get(i);
+            }
+        }
+        return null;
+    }
+}
+class Book{
+    String name,isbn,author;
+    int quantity;
+    double price;
+    public Book(String isbn, String name, String author, int quantity, double price) {
+        this.isbn = isbn;
+        this.name = name;
+        this.author = author;
+        this.quantity = quantity;
+        this.price = price;
+    }
+}
+public class LibrarySystem {
+    public static void main(String[] args) {
+        Scanner sc=new Scanner(System.in);
+        Authservice auth=new Authservice();
+        BookService bookService=new BookService();
+        auth.seedUsers();
+        System.out.println("********************************************************************");
+        System.out.println("            Welcome to Libraray Management system");
+        System.out.println("********************************************************************");
+        while(true){
+            System.out.println("1. Register");
+            System.out.println("2. Login");
+            System.out.print("Choose option: ");
+            int choice=sc.nextInt();
+            sc.nextLine();
+            switch(choice){
+                case 1:
+                    System.out.print("Enter Email: ");
+                    String email = sc.nextLine();
+                    System.out.print("Enter Password: ");
+                    String password = sc.nextLine();
+                    System.out.print("Enter Role (admin/borrower): ");
+                    String role = sc.nextLine();
+                    auth.register(email,password,role);
+                    break;
+                case 2:
+                    System.out.print("Enter Email: ");
+                    String logemail = sc.nextLine();
+                    System.out.print("Enter Password: ");
+                    String logpassword = sc.nextLine();
+                    User user=auth.login(logemail,logpassword);
+                    if(user==null){
+                        System.out.println("Invalid credentials");
+                    }else{
+                        System.out.println("Welcome ");
+                        if (user.role.equals("admin")) {
+    while (true) {
+        System.out.println("Admin Menu");
+        System.out.println("1. Add Book");
+        System.out.println("2. Modify Book Quantity");
+        System.out.println("3. Delete Book");
+        System.out.println("4. View Books by Name");
+        System.out.println("5. View Books by Quantity");
+        System.out.println("6. Search by Name");
+        System.out.println("7. Search by ISBN");
+        System.out.println("8. Logout");
+
+        int opt = sc.nextInt();
+        sc.nextLine();
+
+        switch (opt) {
+            case 1:
+                System.out.print("Enter ISBN: ");
+                String isbn = sc.nextLine();
+                System.out.print("Enter Name: ");
+                String name = sc.nextLine();
+                System.out.print("Enter Author: ");
+                String author = sc.nextLine();
+                System.out.print("Enter Quantity: ");
+                int qty = sc.nextInt();
+                System.out.print("Enter Price: ");
+                double price = sc.nextDouble();
+                sc.nextLine();
+                bookService.addBook(new Book(isbn, name, author, qty, price));
+                break;
+            case 2:
+                System.out.print("Enter ISBN to Modify: ");
+                String modIsbn = sc.nextLine();
+                System.out.print("Enter New Quantity: ");
+                int newQty = sc.nextInt();
+                bookService.modifyQuantity(modIsbn, newQty);
+                break;
+            case 3:
+                System.out.print("Enter ISBN to Delete: ");
+                String delIsbn = sc.nextLine();
+                bookService.deleteBook(delIsbn);
+                break;
+            case 4:
+                bookService.viewBooksSortedByName();
+                break;
+            case 5:
+                bookService.viewBooksSortedByQuantity();
+                break;
+            case 6:
+                System.out.print("Enter Book Name: ");
+                String searchName = sc.nextLine();
+                bookService.searchByName(searchName);
+                break;
+            case 7:
+                System.out.print("Enter ISBN: ");
+                String searchIsbn = sc.nextLine();
+                bookService.searchByIsbn(searchIsbn);
+                break;
+            case 8:
+                System.out.println("Logging out");
+                return;
+        }
+    }
+}else if(user.role.equals("borrower")){
+    while (true) {
+                                System.out.println("Borrower Menu");
+                                System.out.println("1. View Available Books");
+                                System.out.println("2. Borrow Book");
+                                System.out.println("3. Return Book");
+                                System.out.println("4. View My Borrowed Books");
+                                System.out.println("5. Logout");
+
+                                int opt = sc.nextInt();
+                                sc.nextLine();
+
+                                switch (opt) {
+                                    case 1:
+                                        bookService.viewBooksSortedByName();
+                                        break;
+                                    case 2:
+                                        if (user.borrowedBooks.size() >= 3) {
+                                            System.out.println("You can borrow max 3 books.");
+                                            break;
+                                        }
+                                        if (user.deposit < 500) {
+                                            System.out.println("Deposit must be at least 500.");
+                                            break;
+                                        }
+                                        System.out.print("Enter ISBN to Borrow: ");
+                                        String borrowIsbn = sc.nextLine();
+                                        boolean alreadyBorrowed = false;
+                                        for (int i = 0; i < user.borrowedBooks.size(); i++) {
+                                            if (user.borrowedBooks.get(i).equals(borrowIsbn)) {
+                                                alreadyBorrowed = true;
+                                                break;
+                                            }
+                                        }
+                                        if (alreadyBorrowed) {
+                                            System.out.println("Cannot borrow same book twice.");
+                                            break;
+                                        }
+
+                                        Book book = bookService.findBook(borrowIsbn);
+                                        if (book == null || book.quantity <= 0) {
+                                            System.out.println("Book not available.");
+                                        } else {
+                                            user.borrowedBooks.add(borrowIsbn);
+                                            book.quantity--;
+                                            System.out.println("Book borrowed successfully!");
+                                        }
+                                        break;
+                                    case 3:
+                                        System.out.print("Enter ISBN to Return: ");
+                                        String returnIsbn = sc.nextLine();
+                                        boolean found = false;
+                                        for (int i = 0; i < user.borrowedBooks.size(); i++) {
+                                            if (user.borrowedBooks.get(i).equals(returnIsbn)) {
+                                                found = true;
+                                                user.borrowedBooks.remove(i);
+                                                Book returnBook = bookService.findBook(returnIsbn);
+                                                if (returnBook != null) {
+                                                    returnBook.quantity++;
+                                                }
+                                                System.out.println("Book returned successfully!");
+                                                break;
+                                            }
+                                        }
+                                        if (!found) {
+                                            System.out.println("You did not borrow this book.");
+                                        }
+                                        break;
+                                    case 4:
+                                        System.out.println("Your Borrowed Books: " + user.borrowedBooks);
+                                        break;
+                                    case 5:
+                                        return;
+                                }
+                            }
+}
+                    }
+                    break;
+                    default:
+                    System.out.println("Invalid option");
+                    break;
+            }
+        }
+        
+    }
+}
